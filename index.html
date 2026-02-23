@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anowar · obsidian & gold</title>
+    <!-- Tailwind + Google Fonts + Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Outfit:wght@300..600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { cursor: none; } /* custom cursor only */
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .heading {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+        }
+        /* custom cursor */
+        #cursor {
+            width: 32px;
+            height: 32px;
+            border: 1.5px solid #D4AF37;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background 0.2s, border-color 0.2s, transform 0.05s;
+            backdrop-filter: blur(2px);
+            background: rgba(212, 175, 55, 0.05);
+            mix-blend-mode: normal;
+            will-change: left, top;
+        }
+        #cursor.magnetic-active {
+            width: 56px;
+            height: 56px;
+            background: rgba(212, 175, 55, 0.15);
+            border-color: #D4AF37;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+        }
+        /* glassmorphism base */
+        .glass-card {
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 24px;
+            transition: border 0.3s, transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+        .glass-card:hover {
+            border-color: #D4AF37;
+        }
+        /* gold accent */
+        .gold-border {
+            border: 1px solid #D4AF37;
+        }
+        .gold-text {
+            color: #D4AF37;
+        }
+        .gold-bg {
+            background-color: #D4AF37;
+        }
+        /* reveal on scroll */
+        .reveal-item {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+        .reveal-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* staggered delays */
+        .bento-grid .reveal-item:nth-child(1) { transition-delay: 0.1s; }
+        .bento-grid .reveal-item:nth-child(2) { transition-delay: 0.2s; }
+        .bento-grid .reveal-item:nth-child(3) { transition-delay: 0.3s; }
+        .bento-grid .reveal-item:nth-child(4) { transition-delay: 0.4s; }
+        .bento-grid .reveal-item:nth-child(5) { transition-delay: 0.5s; }
+        .bento-grid .reveal-item:nth-child(6) { transition-delay: 0.6s; }
+
+        /* glitch effect for name */
+        .glitch {
+            position: relative;
+            display: inline-block;
+            color: white;
+            letter-spacing: 2px;
+            animation: glitch-skew 4s infinite linear alternate;
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #D4AF37;
+            animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px;
+            text-shadow: 2px 0 #D4AF37;
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 30% 0); }
+            20% { clip-path: inset(60% 0 10% 0); }
+            40% { clip-path: inset(10% 0 50% 0); }
+            60% { clip-path: inset(80% 0 5% 0); }
+            80% { clip-path: inset(30% 0 40% 0); }
+            100% { clip-path: inset(40% 0 30% 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(30% 0 20% 0); }
+            20% { clip-path: inset(10% 0 70% 0); }
+            40% { clip-path: inset(50% 0 30% 0); }
+            60% { clip-path: inset(20% 0 60% 0); }
+            80% { clip-path: inset(70% 0 10% 0); }
+            100% { clip-path: inset(40% 0 40% 0); }
+        }
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); }
+            20% { transform: skew(2deg); }
+            40% { transform: skew(-2deg); }
+            60% { transform: skew(1deg); }
+            80% { transform: skew(-1deg); }
+            100% { transform: skew(0deg); }
+        }
+
+        /* skill icon glow */
+        .skill-icon {
+            transition: filter 0.3s, text-shadow 0.3s;
+        }
+        .skill-icon:hover {
+            filter: drop-shadow(0 0 12px #D4AF37);
+            text-shadow: 0 0 15px #D4AF37;
+        }
+
+        /* contact input glow */
+        .glow-input:focus {
+            outline: none;
+            border-color: #D4AF37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        /* terminal easter egg */
+        #terminal-window {
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .terminal-glow {
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+        }
+
+        /* canvas particles background */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .content {
+            position: relative;
+            z-index: 10;
+        }
+        /* hide default cursor on touch devices (simple fallback) */
+        @media (hover: none) {
+            * { cursor: auto; }
+            #cursor { display: none; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- particle canvas background -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- custom cursor -->
+    <div id="cursor"></div>
+
+    <!-- audio element (ambient.mp3) -->
+    <audio id="ambient-audio" loop preload="auto">
+        <source src="ambient.mp3" type="audio/mpeg">
+        <!-- fallback silent if file missing -->
+    </audio>
+
+    <!-- main content -->
+    <div class="content relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-8">
+
+        <!-- top bar: sound toggle + terminal easter egg button -->
+        <div class="flex justify-end items-center gap-6 mb-12">
+            <button id="sound-toggle" class="flex items-center gap-2 text-sm uppercase tracking-wider gold-text border border-[#D4AF37]/30 px-5 py-2 rounded-full bg-black/20 backdrop-blur-sm hover:border-[#D4AF37] transition-all">
+                <i id="sound-icon" class="fas fa-volume-up"></i>
+                <span id="sound-label">Sound on</span>
+            </button>
+            <button id="terminal-btn" class="text-2xl gold-text border border-[#D4AF37]/30 w-12 h-12 rounded-full flex items-center justify-center bg-black/20 backdrop-blur-sm hover:border-[#D4AF37] transition-all">
+                <i class="fas fa-terminal"></i>
+            </button>
+        </div>
+
+        <!-- hero section -->
+        <section class="min-h-[80vh] flex flex-col md:flex-row items-center gap-12 md:gap-16 py-10">
+            <div class="flex-1 space-y-6">
+                <span class="gold-text text-lg tracking-[0.3em]">— DIGITAL ARTISAN</span>
+                <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold leading-[1.1]">
+                    I’m <span class="glitch gold-text" data-text="ANOWAR">ANOWAR</span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-xl leading-relaxed">Architecting premium digital experiences where code meets couture. Obsidian sharp, gold detailed.</p>
+                <div class="pt-4">
+                    <button id="explore-work" class="group relative px-10 py-5 gold-border rounded-full bg-black/30 backdrop-blur-md text-lg font-semibold tracking-wider overflow-hidden transition-all">
+                        <span class="relative z-10 gold-text">EXPLORE WORK</span>
+                        <span class="absolute inset-0 bg-[#D4AF37] opacity-0 group-hover:opacity-20 transition-opacity"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 flex justify-center">
+                <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden gold-border p-1 bg-black/50 backdrop-blur-sm">
+                    <!-- local profile.jpg with fallback data URI -->
+                    <img src="profile.jpg" alt="Anowar" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%23333\' stroke=\'%23D4AF37\' stroke-width=\'2\'/%3E%3Ctext x=\'50\' y=\'68\' font-size=\'48\' text-anchor=\'middle\' fill=\'%23D4AF37\' font-family=\'Syne\'%3EA%3C/text%3E%3C/svg%3E';">
+                </div>
+            </div>
+        </section>
+
+        <!-- projects (bento grid) -->
+        <section id="projects" class="my-40">
+            <h2 class="text-5xl md:text-6xl font-bold mb-16 gold-text">Featured work</h2>
+            <div class="bento-grid grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[180px] md:auto-rows-[240px]">
+                <!-- project cards (reveal items) -->
+                <div class="reveal-item glass-card col-span-2 row-span-2 p-6 flex flex-col justify-end hover:scale-[1.02] transition-transform duration-700">
+                    <h3 class="text-3xl font-bold">VELVET</h3>
+                    <p class="text-sm text-gray-400">Luxury e‑commerce / 2025</p>
+                </div>
+                <div class="reveal-item glass-card col-span-1 row-span-1 p-4 flex flex-col justify-end hover:scale-[1.02] transition-transform">
+                    <i class="fas fa-crown gold-text text-3xl mb-2"></i>
+                    <h3 class="text-xl font-bold">OBELISK</h3>
+                </div>
+                <div class="reveal-item glass-card col-span-1 row-span-2 p-4 flex flex-col justify-end hover:scale-[1.02] transition-transform">
+                    <i class="fas fa-gem gold-text text-3xl mb-2"></i>
+                    <h3 class="text-xl font-bold">ONYX</h3>
+                    <p class="text-xs text-gray-400">brand identity</p>
+                </div>
+                <div class="reveal-item glass-card col-span-1 row-span-1 p-4 flex flex-col justify-end hover:scale-[1.02] transition-transform">
+                    <i class="fas fa-dragon gold-text text-3xl mb-2"></i>
+                    <h3 class="text-xl font-bold">SOLARA</h3>
+                </div>
+                <div class="reveal-item glass-card col-span-2 row-span-1 p-6 flex flex-col justify-end hover:scale-[1.02] transition-transform">
+                    <h3 class="text-2xl font-bold">NOVA CORE</h3>
+                    <p class="text-sm text-gray-400">interactive installation</p>
+                </div>
+                <div class="reveal-item glass-card col-span-1 row-span-1 p-4 flex flex-col justify-end hover:scale-[1.02] transition-transform">
+                    <i class="fas fa-eye gold-text text-3xl mb-2"></i>
+                    <h3 class="text-xl font-bold">AKIRA</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- tech stack (glowing icons) -->
+        <section class="my-32">
+            <h2 class="text-4xl md:text-5xl font-bold mb-12 gold-text">/tech_stack</h2>
+            <div class="flex flex-wrap gap-8 md:gap-12 justify-center items-center">
+                <i class="skill-icon fab fa-js text-5xl md:text-6xl text-gray-400 transition-all"></i>
+                <i class="skill-icon fab fa-react text-5xl md:text-6xl text-gray-400 transition-all"></i>
+                <i class="skill-icon fab fa-vuejs text-5xl md:text-6xl text-gray-400 transition-all"></i>
+                <i class="skill-icon fab fa-node text-5xl md:text-6xl text-gray-400 transition-all"></i>
+                <i class="skill-icon fab fa-python text-5xl md:text-6xl text-gray-400 transition-all"></i>
+                <i class="skill-icon fas fa-database text-5xl md:text-6xl text-gray-400 transition-all"></i>
+                <i class="skill-icon fab fa-aws text-5xl md:text-6xl text-gray-400 transition-all"></i>
+                <i class="skill-icon fas fa-cloud text-5xl md:text-6xl text-gray-400 transition-all"></i>
+            </div>
+        </section>
+
+        <!-- contact form (sleek minimal) -->
+        <section class="my-40 max-w-3xl mx-auto w-full">
+            <h2 class="text-4xl md:text-5xl font-bold mb-12 gold-text text-center">reserve a orbit</h2>
+            <form class="glass-card p-8 md:p-12 space-y-8">
+                <div>
+                    <input type="text" placeholder="Name" class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500">
+                </div>
+                <div>
+                    <input type="email" placeholder="Email" class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500">
+                </div>
+                <div>
+                    <textarea rows="4" placeholder="Message" class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500 resize-none"></textarea>
+                </div>
+                <div class="text-center">
+                    <button type="button" class="gold-border rounded-full px-12 py-4 gold-text font-semibold tracking-widest bg-black/30 backdrop-blur-sm hover:bg-[#D4AF37]/10 transition-all">send signal</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- terminal easter egg (hidden by default) -->
+        <div id="terminal-window" class="fixed bottom-8 right-8 w-80 bg-black/90 border border-[#D4AF37] rounded-xl backdrop-blur-xl p-4 font-mono text-sm text-green-400 shadow-2xl terminal-glow hidden">
+            <div class="flex items-center gap-2 border-b border-[#D4AF37]/30 pb-2 mb-3">
+                <span class="w-3 h-3 rounded-full bg-red-500/50"></span>
+                <span class="w-3 h-3 rounded-full bg-yellow-500/50"></span>
+                <span class="w-3 h-3 rounded-full bg-green-500/50"></span>
+                <span class="flex-1 text-center gold-text text-xs">bash: secret</span>
+            </div>
+            <p><span class="gold-text">$</span> cat origin.txt</p>
+            <p class="mt-2 text-gray-300">> “First line of code at 12 —<br> > hacked a game to unlock gold skins.<br> > now i craft gold into pixels.”</p>
+            <p class="mt-3 gold-text">$ <span class="animate-pulse">▌</span></p>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // --- custom magnetic cursor ---
+            const cursor = document.getElementById('cursor');
+            const magneticItems = document.querySelectorAll('a, button, .magnetic-item, .skill-icon, .glass-card, input, textarea'); // interactive
+            let mouseX = 0, mouseY = 0;
+            let cursorX = 0, cursorY = 0;
+            const speed = 0.2; // smoothness
+
+            function updateCursor() {
+                const dx = mouseX - cursorX;
+                const dy = mouseY - cursorY;
+                cursorX += dx * speed;
+                cursorY += dy * speed;
+                cursor.style.left = cursorX + 'px';
+                cursor.style.top = cursorY + 'px';
+                requestAnimationFrame(updateCursor);
+            }
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            updateCursor();
+
+            // magnetic hover effect (scale)
+            magneticItems.forEach(item => {
+                item.classList.add('magnetic-item'); // ensure class
+                item.addEventListener('mouseenter', () => {
+                    cursor.classList.add('magnetic-active');
+                });
+                item.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('magnetic-active');
+                });
+            });
+
+            // hide cursor when leaves window
+            document.addEventListener('mouseleave', () => {
+                cursor.style.opacity = '0';
+            });
+            document.addEventListener('mouseenter', () => {
+                cursor.style.opacity = '1';
+            });
+
+            // --- particle background (floating tech) ---
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+
+            function initParticles() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                const particleCount = 80;
+                particles = [];
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 2.5 + 0.8,
+                        speedX: (Math.random() - 0.5) * 0.4,
+                        speedY: (Math.random() - 0.5) * 0.4,
+                        color: `rgba(212, 175, 55, ${Math.random() * 0.4 + 0.1})`
+                    });
+                }
+            }
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    // subtle glow
+                    ctx.shadowColor = '#D4AF37';
+                    ctx.shadowBlur = 6;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+
+                    // wrap around edges
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+                });
+                requestAnimationFrame(drawParticles);
+            }
+
+            window.addEventListener('resize', () => {
+                initParticles();
+            });
+            initParticles();
+            drawParticles();
+
+            // --- reveal on scroll (Intersection Observer) ---
+            const revealItems = document.querySelectorAll('.reveal-item');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                    }
+                });
+            }, { threshold: 0.2, rootMargin: '0px' });
+            revealItems.forEach(item => observer.observe(item));
+
+            // --- sound toggle & explore work logic ---
+            const audio = document.getElementById('ambient-audio');
+            const soundToggle = document.getElementById('sound-toggle');
+            const soundIcon = document.getElementById('sound-icon');
+            const soundLabel = document.getElementById('sound-label');
+            let soundEnabled = true; // default on
+
+            soundToggle.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                if (soundEnabled) {
+                    soundIcon.className = 'fas fa-volume-up';
+                    soundLabel.innerText = 'Sound on';
+                } else {
+                    soundIcon.className = 'fas fa-volume-mute';
+                    soundLabel.innerText = 'Sound off';
+                    audio.pause(); // also pause if playing
+                }
+            });
+
+            const exploreBtn = document.getElementById('explore-work');
+            exploreBtn.addEventListener('click', () => {
+                // scroll to projects
+                document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
+                // play audio if enabled
+                if (soundEnabled && audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(e => console.log('audio play failed (maybe no file?)'));
+                }
+            });
+
+            // --- terminal easter egg ---
+            const terminalBtn = document.getElementById('terminal-btn');
+            const terminalWin = document.getElementById('terminal-window');
+            terminalBtn.addEventListener('click', () => {
+                terminalWin.classList.toggle('hidden');
+            });
+
+            // close terminal if click outside (optional)
+            document.addEventListener('click', (e) => {
+                if (!terminalBtn.contains(e.target) && !terminalWin.contains(e.target)) {
+                    terminalWin.classList.add('hidden');
+                }
+            });
+
+            // glitch name setup (data-text already)
+        })();
+    </script>
+
+    <!-- ensure magnetic-item includes extra interactive elements -->
+    <style>
+        button, a, .glass-card, .skill-icon, input, textarea { cursor: none; }
+        .glass-card {
+            transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1), border 0.3s;
+        }
+        .glass-card:hover {
+            transform: scale(1.02);
+        }
+        /* bento grid spans */
+        @media (min-width: 768px) {
+            .bento-grid .col-span-2 { grid-column: span 2; }
+            .bento-grid .row-span-2 { grid-row: span 2; }
+        }
+        /* custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
+    </style>
+
+    <!-- note: profile.jpg and ambient.mp3 should be placed in same folder -->
+    <!-- if missing, fallback image (SVG) and silent audio are used -->
+</body>
+</html>
