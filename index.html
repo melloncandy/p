@@ -280,23 +280,31 @@
         </section>
 
         <!-- contact form (sleek minimal) -->
-        <section class="my-40 max-w-3xl mx-auto w-full">
-            <h2 class="text-4xl md:text-5xl font-bold mb-12 gold-text text-center">reserve a orbit</h2>
-            <form class="glass-card p-8 md:p-12 space-y-8">
-                <div>
-                    <input type="text" placeholder="Name" class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500">
-                </div>
-                <div>
-                    <input type="email" placeholder="Email" class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500">
-                </div>
-                <div>
-                    <textarea rows="4" placeholder="Message" class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500 resize-none"></textarea>
-                </div>
-                <div class="text-center">
-                    <button type="button" class="gold-border rounded-full px-12 py-4 gold-text font-semibold tracking-widest bg-black/30 backdrop-blur-sm hover:bg-[#D4AF37]/10 transition-all">send signal</button>
-                </div>
-            </form>
-        </section>
+       <!-- contact form (Sleek & Netlify-Ready) -->
+<section class="my-40 max-w-3xl mx-auto w-full">
+    <h2 class="text-4xl md:text-5xl font-bold mb-12 gold-text text-center">reserve a orbit</h2>
+    
+    <!-- Use 'netlify' attribute exactly as they showed -->
+    <form name="contact" method="POST" netlify action="/success" class="glass-card p-8 md:p-12 space-y-8">
+        <div>
+            <label class="block text-gray-400 mb-2">Name</label>
+            <input type="text" name="name" required class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500">
+        </div>
+        <div>
+            <label class="block text-gray-400 mb-2">Email</label>
+            <input type="email" name="email" required class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500">
+        </div>
+        <div>
+            <label class="block text-gray-400 mb-2">Message</label>
+            <textarea name="message" rows="4" required class="w-full bg-transparent border-b border-gray-600 py-3 px-2 text-lg glow-input transition-all focus:border-[#D4AF37] text-white placeholder-gray-500 resize-none"></textarea>
+        </div>
+        <div class="text-center">
+            <!-- Ensure this is type="submit" -->
+            <button type="submit" class="gold-border rounded-full px-12 py-4 gold-text font-semibold tracking-widest bg-black/30 backdrop-blur-sm hover:bg-[#D4AF37]/10 transition-all">send signal</button>
+        </div>
+    </form>
+</section>
+
 
         <!-- terminal easter egg (hidden by default) -->
         <div id="terminal-window" class="fixed bottom-8 right-8 w-80 bg-black/90 border border-[#D4AF37] rounded-xl backdrop-blur-xl p-4 font-mono text-sm text-green-400 shadow-2xl terminal-glow hidden">
